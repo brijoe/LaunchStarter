@@ -23,7 +23,7 @@ import io.github.brijoe.launchstarter.utils.DispatcherLog;
 import io.github.brijoe.launchstarter.utils.Utils;
 
 /**
- * 启动器调用类
+ * 任务调度器 核心类
  */
 
 public class TaskDispatcher {
@@ -33,15 +33,20 @@ public class TaskDispatcher {
     private static boolean sIsMainProcess;
     private List<Future> mFutures = new ArrayList<>();
     private static volatile boolean sHasInit;
+    //all tasks
     private List<Task> mAllTasks = new ArrayList<>();
+    //all task class
     private List<Class<? extends Task>> mClsAllTasks = new ArrayList<>();
-    private volatile List<Task> mMainThreadTasks = new ArrayList<>();
-    private CountDownLatch mCountDownLatch;
-    private AtomicInteger mNeedWaitCount = new AtomicInteger();//保存需要Wait的Task的数量
-    private List<Task> mNeedWaitTasks = new ArrayList<>();//调用了await的时候还没结束的且需要等待的Task
-    private volatile List<Class<? extends Task>> mFinishedTasks = new ArrayList<>(100);//已经结束了的Task
+    //调用了await的时候还没结束的且需要等待的Task
+    private List<Task> mNeedWaitTasks = new ArrayList<>();
+    //保存需要Wait的Task的数量
+    private AtomicInteger mNeedWaitCount = new AtomicInteger();
+    //依赖任务，key=被依赖task value=依赖于key的List<Task>
     private HashMap<Class<? extends Task>, ArrayList<Task>> mDependedHashMap = new HashMap<>();
     private AtomicInteger mAnalyseCount = new AtomicInteger();//启动器分析的次数，统计下分析的耗时；
+    private volatile List<Task> mMainThreadTasks = new ArrayList<>();
+    private CountDownLatch mCountDownLatch;
+    private volatile List<Class<? extends Task>> mFinishedTasks = new ArrayList<>(100);//已经结束了的Task
 
     private TaskDispatcher() {
     }
@@ -94,6 +99,7 @@ public class TaskDispatcher {
         }
     }
 
+    //运行在异步线程中需要等待完成
     private boolean ifNeedWait(Task task) {
         return !task.runOnMainThread() && task.needWait();
     }
@@ -107,15 +113,20 @@ public class TaskDispatcher {
         if (mAllTasks.size() > 0) {
             mAnalyseCount.getAndIncrement();
             printDependedMsg();
+            //调用排序
             mAllTasks = TaskSortUtil.getSortResult(mAllTasks, mClsAllTasks);
             mCountDownLatch = new CountDownLatch(mNeedWaitCount.get());
 
+            //运行应当在异步线程当中执行的任务
             sendAndExecuteAsyncTasks();
 
             DispatcherLog.i("task analyse cost " + (System.currentTimeMillis() - mStartTime) + "  begin main ");
+            //运行应当在主线程当中执行的任务
             executeTaskMain();
         }
         DispatcherLog.i("task analyse cost startTime cost " + (System.currentTimeMillis() - mStartTime));
+        //调用await 等待
+        await();
     }
 
     public void cancel() {
@@ -137,6 +148,7 @@ public class TaskDispatcher {
 
     private void sendAndExecuteAsyncTasks() {
         for (Task task : mAllTasks) {
+            //如果是非主进程标记所有任务执行完成
             if (task.onlyInMainProcess() && !sIsMainProcess) {
                 markTaskDone(task);
             } else {
@@ -184,6 +196,7 @@ public class TaskDispatcher {
         }
     }
 
+    //真正执行task
     private void sendTaskReal(final Task task) {
         if (task.runOnMainThread()) {
             mMainThreadTasks.add(task);
@@ -216,8 +229,8 @@ public class TaskDispatcher {
         task.runOn().execute(new DispatchRunnable(task, this));
     }
 
-    @UiThread
-    public void await() {
+
+    private void await() {
         try {
             if (DispatcherLog.isDebug()) {
                 DispatcherLog.i("still has " + mNeedWaitCount.get());

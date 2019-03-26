@@ -10,6 +10,9 @@ import java.util.Set;
 import io.github.brijoe.launchstarter.task.Task;
 import io.github.brijoe.launchstarter.utils.DispatcherLog;
 
+/**
+ * 此类用于对task 进行排序
+ */
 
 public class TaskSortUtil {
 
@@ -93,7 +96,6 @@ public class TaskSortUtil {
      * 获取任务在任务列表中的index
      *
      * @param originTasks
-     * @param taskName
      * @return
      */
     private static int getIndexOfTask(List<Task> originTasks,
