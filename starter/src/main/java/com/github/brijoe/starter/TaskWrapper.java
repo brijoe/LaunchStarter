@@ -69,8 +69,13 @@ class TaskWrapper extends StartTask {
 
     @Override
     public String toString() {
+        return originTask.getTag();
+    }
+
+    public String dump() {
         return "TaskWrapper{" +
-                "originStartTask=" + originTask +
+                "mInFlight=" + mInFlight +
+                ", originTask=" + originTask +
                 ", listener=" + listener +
                 '}';
     }

@@ -54,26 +54,26 @@ class TaskExecutor {
             for (; ; ) {
                 try {
                     StartTask task = mainTaskBlockingDeque.take();
-                    StarterLog.d("awaitInMainThread 取出任务" + task);
+                    StarterLog.d("TaskExecutor-UIExecutor 取出任务" + task);
                     //取完了就不阻塞了
                     task.run();
-                    StarterLog.d("awaitInMainThread 执行任务" + task);
+                    StarterLog.d("TaskExecutor-UIExecutor 执行任务" + task);
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
                     if (linker.mainThreadTaskCounter.decrementAndGet() == 0) {
-                        StarterLog.d("awaitInMainThread 主线程任务执行完毕");
+                        StarterLog.d("TaskExecutor-UIExecutor 主线程任务执行完毕");
                         break;
                     }
                 }
             }
-            StarterLog.d("awaitInMainThread 开始尝试等待");
+            StarterLog.d("TaskExecutor-UIExecutor 开始尝试等待");
             //主线程任务执行完成看是否还有其他等待任务，如果有则等待
             synchronized (lock) {
-                StarterLog.d("awaitInMainThread 获取到lock锁");
+                StarterLog.d("TaskExecutor-UIExecutor 获取到lock锁");
                 while (linker.needWaitTaskCounter.get() > 0) {
                     try {
-                        StarterLog.d("awaitInMainThread 主线程等待");
+                        StarterLog.d("TaskExecutor-UIExecutor 等待");
                         lock.wait();
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -81,11 +81,13 @@ class TaskExecutor {
                 }
             }
 
-            StarterLog.d("awaitInMainThread-start方法返回");
+            StarterLog.d("UIExecutor 方法返回");
         }
 
         public void wakeup() {
-            lock.notifyAll();
+            synchronized (lock) {
+                lock.notifyAll();
+            }
         }
     }
 
@@ -110,7 +112,7 @@ class TaskExecutor {
             private final AtomicInteger mCount = new AtomicInteger(1);
 
             public Thread newThread(Runnable r) {
-                return new Thread(r, "Starter #" + mCount.getAndIncrement());
+                return new Thread(r, "Starter#WorkerExecutor" + mCount.getAndIncrement());
             }
         };
 

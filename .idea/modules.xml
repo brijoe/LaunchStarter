@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/LaunchStarter.iml" filepath="$PROJECT_DIR$/.idea/modules/LaunchStarter.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/example/LaunchStarter.example.iml" filepath="$PROJECT_DIR$/.idea/modules/example/LaunchStarter.example.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/library/LaunchStarter.library.iml" filepath="$PROJECT_DIR$/.idea/modules/library/LaunchStarter.library.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/starter/LaunchStarter.starter.iml" filepath="$PROJECT_DIR$/.idea/modules/starter/LaunchStarter.starter.iml" />
+    </modules>
+  </component>
+</project>

@@ -48,6 +48,10 @@ public abstract class StartTask implements Runnable {
     public abstract void run();
 
 
+    public String getTag() {
+        return TAG;
+    }
+
     @Override
     public String toString() {
         return "StartTask{" +

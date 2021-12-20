@@ -64,24 +64,24 @@ class TaskTracker extends HandlerThread implements TaskListener {
     }
 
     private void notifyStarterLaunch() {
-        StarterLog.d("TaskDispatcher-开始调度执行任务");
+        StarterLog.d("TaskTracker-开始调度执行任务");
     }
 
     private void notifyStarterFinished() {
-        StarterLog.d("TaskDispatcher-结束任务执行完毕");
+        StarterLog.d("TaskTracker-结束任务执行完毕");
     }
 
     private void notifyTaskStarted(TaskWrapper startTask) {
         if (firstTaskArrived.compareAndSet(false, true)) {
             notifyStarterLaunch();
         }
-        StarterLog.d("TaskDispatcher-" + startTask + "-开始执行");
+        StarterLog.d("TaskTracker-" + startTask + "-开始执行");
     }
 
     private void notifyTaskFinished(TaskWrapper startTask) {
         startTask.markFinish();
         //任务执行完毕
-        StarterLog.d("TaskDispatcher-onTaskFinish" + startTask);
+        StarterLog.d("TaskTracker-onTaskFinish" + startTask);
         //处理队列
         linker.taskGraph.removeZeroNode(startTask);
         linker.taskGraph.printGraph();
@@ -115,7 +115,7 @@ class TaskTracker extends HandlerThread implements TaskListener {
         for (TaskWrapper t : linker.taskGraph.getZeroNodes()) {
             //没在执行当中
             if (!t.isInFlight()) {
-                StarterLog.d("TaskDispatcher-enqueueNextTasks " + t);
+                StarterLog.d("TaskDispatcher-enqueueNextTasks " + t.dump());
                 linker.taskDispatcher.addTask(t);
                 t.markInFlight();
             }

@@ -54,6 +54,8 @@ class Linker {
             }
         }
         taskGraph.printGraph();
+        taskGraph.assertValidGraph();
+        taskGraph.printGraph();
 
     }
 

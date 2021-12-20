@@ -12,6 +12,7 @@ public class AStartTask extends StartTask {
         return false;
     }
 
+
     @Override
     public void run() {
         SystemClock.sleep(1000);
